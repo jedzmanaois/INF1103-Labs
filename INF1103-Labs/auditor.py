@@ -26,3 +26,4 @@ while True:
 
 print("Final inventory count:", inventory)
 print("Number of failed entries:", failed_entries)
+
