@@ -16,6 +16,13 @@ def load_inventory():
     except FileNotFoundError:
         return 0, []
 
+def save_inventory(total, history):
+    with open("inventory.txt", "w") as file:
+        file.write(str(total) + "\n")
+
+        for transaction in history:
+            file.write(str(transaction) + "\n")
+
 def get_valid_input():
     global failed_attempts
 
