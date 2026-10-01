@@ -51,13 +51,18 @@ def generate_report(total_units, failed_attempts):
     print("Total Units Processed:", total_units)
     print("Number of Failed/Rejected Entries:", failed_attempts)
 
-inventory = 0
+inventory, transaction_history = load_inventory()
+
+print("Previous Inventory Total:", inventory)
+print("Previous Inventory History:", transaction_history)
 
 while True:
 
     delivery = get_valid_input()
 
     if delivery == "quit":
+        save_inventory(inventory, transaction_history)
+        print("Inventory and Transaction History saved.")
         break
 
     if delivery is None:
