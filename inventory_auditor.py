@@ -13,15 +13,28 @@ def load_inventory():
         print("Starting with empty inventory.")
         return []
 
-def save_inventory(total, history):
+def save_inventory(inventory):
     with open("inventory.json", "w") as file:
-        json.dump({"total": total, "history": history}, file)
-                    history.append(int(line.strip()))
+        json.dump(inventory, file)
 
-            return total, history
+    print("Inventory saved to inventory.json.")
 
-    except FileNotFoundError:
-        return 0, []
+def display_inventory(inventory):
+    print("\n--- Current Inventory ---")
+    print("-"*30)
+
+    if len(inventory) == 0:
+        print("Inventory is empty.")
+    else:
+        for product in inventory:
+            print(
+                f"ID: {product['id']} |"
+                f"Name: {product['name']} |"
+                f"Price: ${product['price']} |"
+                f"Stock: {product['stock']}"
+            )
+
+    print("-"*30)  
 
 def save_inventory(total, history):
     with open("inventory.txt", "w") as file:
