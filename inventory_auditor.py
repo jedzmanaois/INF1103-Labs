@@ -34,68 +34,22 @@ def display_inventory(inventory):
                 f"Stock: {product['stock']}"
             )
 
-    print("-"*30)  
+    print("-"*30)
 
-def save_inventory(total, history):
-    with open("inventory.txt", "w") as file:
-        file.write(str(total) + "\n")
+def add_product(inventory):
+    print("\nAdd New Product")
 
-        for transaction in history:
-            file.write(str(transaction) + "\n")
+    product_id = input("Enter product ID: ")
+    product_name = input("Enter product name: ")
+    product_price = float(input("Enter product price: "))
+    product_stock = int(input("Enter product stock quantity: "))
 
-def get_valid_input():
-    global failed_attempts
+    new_product = {
+        "id": product_id,
+        "name": product_name,
+        "price": product_price,
+        "stock": product_stock}
 
-    value = input("Enter stock quantity (or type 'quit' to finish): ")
+    inventory.append(new_product)
 
-    if value.lower() == "quit":
-        return "quit"
-
-    if not value.isdigit():
-        print("Error: Please enter a valid integer.")
-        failed_attempts += 1
-        return None
-
-    return int(value)
-
-def process_delivery(current_total, new_value):
-    new_total = current_total + new_value
-    return new_total
-
-def calculate_tax(amount):
-    tax = amount * 0.10
-    return tax
-
-def generate_report(total_units, failed_attempts):
-    print("\n--- Inventory Report ---")
-    print("Total Units Processed:", total_units)
-    print("Number of Failed/Rejected Entries:", failed_attempts)
-
-inventory, transaction_history = load_inventory()
-
-print("Previous Inventory Total:", inventory)
-print("Previous Inventory History:", transaction_history)
-
-while True:
-
-    delivery = get_valid_input()
-
-    if delivery == "quit":
-        save_inventory(inventory, transaction_history)
-        print("Inventory and Transaction History saved.")
-        break
-
-    if delivery is None:
-        continue
-
-    inventory = process_delivery(inventory, delivery)
-
-    tax = calculate_tax(delivery)
-
-    deliveries_processed += 1
-
-    print("Delivery processed:", delivery)
-    print("Tax for this delivery:", tax)
-    print("Current inventory:", inventory)
-
-generate_report(inventory, failed_attempts)
+    print("Product added successfully!")
