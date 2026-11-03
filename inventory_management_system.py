@@ -35,3 +35,41 @@ class Product:
             data["price"],
             data["stock"]
         )
+
+class Inventory:
+    def __init__(self):
+        self.__products = []
+
+    def add_product(self, product):
+
+        if self.searchproduct(product.get_product_id()) is not None:
+            print("Product with this ID already exists.")
+            return False
+
+        self.__products.append(product)
+        return True
+
+    def search_product(self, product_id):
+
+        for product in self.__products:
+            if product.get_product_id() == product_id:
+                return product
+            
+        return None
+
+    def display_all(self):
+
+        print("\Current Inventory:")
+        print("-" * 50)
+
+        if len(self.__products) == 0:
+            print("Inventory is empty.")
+            return
+
+        else:
+            for product in self.__products:
+                product.display_information()
+                print("-" * 50)
+
+    def to_list(self):
+        return [product.to_dict() for product in self.__products]
