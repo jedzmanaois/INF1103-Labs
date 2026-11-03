@@ -17,7 +17,7 @@ class Product:
         print("Product ID:", self.__product_id)
         print("Name:", self.__name)
         print(f"Price: ${self.__price:.2f}")
-        print("Stock: self.__stock")
+        print("Stock: ", self.__stock)
 
     def to_dict(self):
         return {
@@ -30,7 +30,7 @@ class Product:
     @classmethod
     def from_dict(cls, data):
         return cls(
-            data["id"],
+            data["product_id"],
             data["name"],
             data["price"],
             data["stock"]
@@ -60,7 +60,7 @@ class Inventory:
 
     def display_all(self):
 
-        print("\Current Inventory:")
+        print("\nCurrent Inventory:")
         print("-" * 50)
 
         if len(self.__products) == 0:
