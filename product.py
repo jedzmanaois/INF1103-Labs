@@ -1,23 +1,43 @@
 from abc import ABC, abstractmethod
+from supplier import Supplier
 
 class Product(ABC):
-    def __init__(self, product_id, name, price, stock):
-        self.__product_id = product_id
+    def __init__(
+        self,
+        product_id: str,
+        name: str,
+        price: float,
+        stock: int,
+        supplier: Supplier
+    ):
+        self.__product_id: str = product_id
         self.__name = name
         self.__price = price
         self.__stock = stock
-
-    def get_product_id(self):
+        self.supplier: Supplier = supplier
+        
+    @property
+    def price(self) -> float:
+         return self.__price
+    
+    def get_product_id(self) -> str:
         return self.__product_id
 
-    def update_stock(self, quantity):
-        self.__stock = quantity
+    def update_stock(self, new_stock: int) -> None:
+        self.__stock = new_stock
 
-    def display_information(self):
+    def display_information(self) -> None:
             print("Product ID:", self.__product_id)
             print("Name:", self.__name)
             print(f"Price: ${self.__price:.2f}")
             print("Stock:", self.__stock)
+
+    def display_supplier(self) -> None:
+         self.supplier.display_information()
+
+    @abstractmethod
+    def get_fulfilment_method(self):
+        pass
 
     def to_dict(self):
         return {
@@ -26,7 +46,3 @@ class Product(ABC):
             "price": self.__price,
             "stock": self.__stock
         }
-
-    @abstractmethod
-    def get_fulfilment_method(self):
-        pass
