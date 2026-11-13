@@ -5,6 +5,7 @@ from inventory import Inventory
 from physical_product import PhysicalProduct
 from digital_product import DigitalProduct
 from supplier import Supplier
+from product import Product
 
 def save_inventory(inventory: Inventory) -> None:
     with open('inventory.json', 'w') as file:
@@ -16,11 +17,14 @@ def load_inventory() -> Inventory:
     inventory = Inventory()
 
     if not os.path.exists("inventory.json"):
-        print("No  inventory file found. Starting with an empty inventory.")
+        print("No inventory file found. Starting with an empty inventory.")
         return inventory
 
     with open('inventory.json', 'r') as file:
         data = json.load(file)
+
+    # Products that share a supplier should share the same Supplier object
+    suppliers: dict[str, Supplier] = {}
 
     for item in data:
 
@@ -33,11 +37,18 @@ def load_inventory() -> Inventory:
             )
             continue
 
-        supplier = Supplier(
-            supplier_data["supplier_id"],
-            supplier_data["name"],
-            supplier_data["contact_email"]
-        )
+        supplier_id = supplier_data["supplier_id"]
+
+        if supplier_id not in suppliers:
+            suppliers[supplier_id] = Supplier(
+                supplier_id,
+                supplier_data["name"],
+                supplier_data["contact_email"]
+            )
+
+        supplier = suppliers[supplier_id]
+
+        product: Product
 
         if item['type'] == 'physical':
             product = PhysicalProduct(
@@ -45,7 +56,8 @@ def load_inventory() -> Inventory:
                 item['name'],
                 item['price'],
                 item['stock'],
-                item['weight']
+                item['weight'],
+                supplier
             )
 
         elif item['type'] == 'digital':
@@ -54,7 +66,8 @@ def load_inventory() -> Inventory:
                 item['name'],
                 item['price'],
                 item['stock'],
-                item['download_size']
+                item['download_size'],
+                supplier
             )
         else:
             print(
