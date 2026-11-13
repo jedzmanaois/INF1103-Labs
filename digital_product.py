@@ -28,7 +28,7 @@ class DigitalProduct(Product):
     def get_fulfilment_method(self) -> str:
         return "This product is delivered digitally"
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         data = super().to_dict()
         data["type"] = "digital"
         data["download_size"] = self.__download_size
