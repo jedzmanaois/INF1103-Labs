@@ -44,5 +44,6 @@ class Product(ABC):
             "product_id": self.__product_id,
             "name": self.__name,
             "price": self.__price,
-            "stock": self.__stock
+            "stock": self.__stock,
+            "supplier": self.supplier.to_dict()
         }
