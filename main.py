@@ -40,7 +40,7 @@ def get_valid_positive_float(prompt: str) -> float:
         except ValueError:
             print("Error: Please enter a valid number.")
 
-def add_product(inventory):
+def add_product(inventory: Inventory, supplier: Supplier) -> None:
     print("\nAdd Product")
     print("1. Physical Product")
     print("2. Digital Product")
@@ -151,6 +151,8 @@ def create_order(inventory: Inventory) -> None:
 
         order.add_order_line(product, quantity)
         print("Product added to order.")
+
+    order.display_order()
 
 def main() -> None:
 
