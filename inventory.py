@@ -5,6 +5,10 @@ class Inventory:
     def __init__(self):
         self.__products: list[Product] = []
 
+    @property
+    def products(self) -> list[Product]:
+        return list(self.__products)
+
     def add_product(self, product: Product) -> bool:
         for existing_product in self.__products:
             if ( 
