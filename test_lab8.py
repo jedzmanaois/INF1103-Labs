@@ -20,11 +20,11 @@ def run_tests():
     )
 
     physical = PhysicalProduct(
-        "P001", "Wireless Mouse", 25.00, 10, supplier, 0.5
+        "P001", "Wireless Mouse", 25.00, 10, 0.5, supplier
     )
 
     digital = DigitalProduct(
-        "D001", "Photo Editor", 49.90, 100, supplier, 250.0
+        "D001", "Photo Editor", 49.90, 100, 250.0, supplier
     )
 
     physical.display_supplier()
@@ -43,7 +43,7 @@ def run_tests():
     inventory_a.add_product(physical)
 
     print("Product in Inventory A:")
-    inventory_a.display_all
+    inventory_a.display_all()
 
     inventory_a.remove_product("P001")
 
@@ -85,7 +85,22 @@ def run_tests():
     products: list[Product] = [physical, digital]
 
     for product in products:
-        show_product_details(products)
+        show_product_details(product)
+        print("-------------------------")
+
+    print("\nTest 5: Polymorphism through Inventory")
+
+    inventory_c = Inventory()
+    inventory_c.add_product(physical)
+    inventory_c.add_product(digital)
+
+    for product in inventory_c.products:
+        product.display_information()
+        print(product.get_fulfilment_method())
         print("-------------------------")
 
     print("\nAll Lab 8 test completed.")
+
+
+if __name__ == "__main__":
+    run_tests()
