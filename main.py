@@ -172,8 +172,10 @@ def main() -> None:
         print("2. Add Product")
         print("3. Update Stock")
         print("4. Search Product")
-        print("5. Save Inventory")
-        print("6. Exit")
+        print("5. Remove Product")
+        print("6. Save Inventory")
+        print("7. Create Order")
+        print("8. Exit")
         print("--------------------------")
 
         option = input("Enter option: ")
