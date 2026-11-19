@@ -33,7 +33,7 @@ class ProductFactory:
                 name,
                 price,
                 stock_quantity,
-                supplier
+                supplier,
                 download_size=100.0
             )
 
