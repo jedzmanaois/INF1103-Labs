@@ -8,8 +8,8 @@ class DigitalProduct(Product):
         name: str,
         price: float,
         stock: int,
-        download_size: float,
-        supplier: Supplier
+        supplier: Supplier,
+        download_size: float
     ):
         super().__init__(
             product_id,
