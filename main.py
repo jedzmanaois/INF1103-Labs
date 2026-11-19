@@ -1,37 +1,37 @@
 from supplier import Supplier
-from physical_product import PhysicalProduct
-from digital_product import DigitalProduct
 from inventory import Inventory
 from order import Order
-from file_handler import load_inventory, save_inventory
 
-def get_valid_integer(prompt: str) -> int:
-    while True:
-        value = input(prompt)
+from product_factory import ProductFactory
+from discount_strategy import (
+    NoDiscount,
+    PercentageDiscount,
+    BulkDiscount,
+    StudentDiscount
+)
 
-        if value.isdigit():
-            return int(value)
+from file_handler import load_products
 
-        print("Error: Please enter a valid integer.")
+def get_positive_float(prompt: str) -> float:
 
-def get_valid_price(prompt: str) -> float:
     while True:
         try:
             value = float(input(prompt))
 
-            if value >= 0:
-                return value
+            if value <= 0:
+                print("Please enter a number greaterthan zero.")
+                continue
 
-            print("Price cannot be negative. Please enter a valid price.")
+            return value
 
         except ValueError:
-            print("Error: Please enter a valid price.")
+            print("Please enter a valid number, e.g. 12.50")
 
-def get_valid_positive_float(prompt: str) -> float:
-    
+def get_positive_integer(prompt: str) -> int:
+
     while True:
         try:
-            value = float(input(prompt))
+            value = int(input(prompt))
 
             if value <= 0:
                 print("Please enter a number greater than zero.")
@@ -40,127 +40,123 @@ def get_valid_positive_float(prompt: str) -> float:
             return value
 
         except ValueError:
-            print("Please enter a valid number, e.g. 12.50")
+            print("Please enter a valid whole number.")
 
-def add_product(inventory: Inventory, supplier: Supplier) -> None:
-    print("\nAdd Product")
-    print("1. Physical Product")
-    print("2. Digital Product")
-
-    product_type = input("Choose product type: ")
-
-    product_id = input("Enter product ID: ").strip()
-    name = input("Enter product name: ").strip()
-
-    if not product_id or not name:
-        print("Product ID and name cannot be empty.")
-        return
-
-    price = get_valid_price("Price: $")
-    stock = get_valid_integer("Stock quantity: ")
-
-    if product_type == "1":
-        weight = get_valid_positive_float("Weight (kg): ")
-        product = PhysicalProduct(
-            product_id, name, price, stock, weight, supplier
-        )
-
-    elif product_type == "2":
-        download_size = get_valid_positive_float("Download size (MB): ")
-        product = DigitalProduct(
-            product_id, name, price, stock, download_size, supplier
-        )
-
-    else:
-        print("Invalid product type.")
-        return
-
-    if inventory.add_product(product):
-        print("Product added successfully.")
-
-    else:
-        print("Error: Product ID already exists.")
-
-
-def update_stock(inventory: Inventory) -> None:
-    product_id = input("Enter Product ID: ").strip()
-
-    product = inventory.find_product(product_id)
-
-    if product is not None:
-        product.display_information()
-
-        new_stock = get_valid_integer(
-            "Enter new stock quantity: "
-        )
-
-        product.update_stock(new_stock)
-        print("Stock updated successfully.")
-
-    else:
-        print("Product not found.")
-
-def search_product(inventory: Inventory) -> None:
-    product_id = input("Enter Product ID: ").strip()
-
-    product = inventory.find_product(product_id)
-
-    if product is not None:
-        print("\nProduct Found")
-        product.display_information()
-
-        print("Fulfilment:", product.get_fulfilment_method())
-
-        print("\nSupplier Information:")
-        product.display_supplier()
-
-    else:
-        print("Product not found.")
-
-def remove_product(inventory: Inventory) -> None:
-    product_id = input("Enter Product ID to remove: ").strip()
-
-    if inventory.remove_product(product_id):
-        print("Product removed from inventory")
-
-    else:
-        print("Product not found.")
-
-def create_order(inventory: Inventory) -> None:
-    order_id = input("Enter Order ID: ").strip()
-
-    if not order_id:
-        print("Order ID cannot be empty.")
-        return
-
-    order = Order(order_id)
+def get_nonnegative_integer(prompt: str) -> int:
 
     while True:
-        product_id = input(
-            "Enter Product ID to order (or 'done'): "
-        ).strip()
+        try:
+            value = int(input(prompt))
 
-        if product_id.lower() == "done":
-            break
+            if value < 0:
+                print("Stock cannot be negative.")
+                continue
 
-        product = inventory.find_product(product_id)
+            return value
 
-        if product is None:
-            print("Product not found.")
-            continue
+        except ValueError:
+            print("Please enter a valid whole number.")
 
-        quantity = get_valid_integer("Enter quantity: ")
+def add_product(inventory: Inventory, supplier: Supplier) -> None:
 
-        order.add_order_line(product, quantity)
-        print("Product added to order.")
+    try:
+        product_type = input(
+            "Enter product type (physical/digital): "
+        ).lower().strip()
 
-    order.display_order()
+        product_id = input("Enter Product ID: ")
+        name = input("Enter Product Name: ")
 
-def main() -> None:
+        price = get_positive_float("Enter Price: ")
 
-    print("=" * 40)
-    print("Welcome to the Inventory Management System")
-    print("=" * 40)
+        stock = get_nonnegative_integer("Enter Stock Quantity: ")
+
+        product = ProductFactory.create(
+            product_type,
+            product_id,
+            name,
+            price,
+            stock,
+            supplier
+        )
+
+        if inventory.add_product(product):
+            print("Product added successfully.")
+
+    except ValueError as error:
+        print("Unable to add product:", error)
+
+def create_order(inventory: Inventory) -> None:
+
+    order_id = input("Enter Order ID: ")
+
+    discount_choice = input(
+        "Choose discount (none/percentage/bulk/student): "
+    ).lower().strip()
+
+    try:
+        if discount_choice == "none":
+            discount = NoDiscount()
+
+        elif discount_choice == "percentage":
+            percentage = get_positive_float(
+                "Enter discountp percentage: "
+            )
+
+            discount = PercentageDiscount(percentage)
+
+        elif discount_choice == "bulk":
+            threshold = get_positive_float(
+                "Enter minimum order amount: "
+            )
+
+            amount = get_positive_float(
+                "Enter discount amount: "
+            )
+
+            discount = BulkDiscount(threshold, amount)
+
+        elif discount_choice == "student":
+            discount = StudentDiscount()
+
+        else:
+            raise ValueError("Unknown discount type.")
+
+        order = Order(order_id, discount)
+
+        while True:
+            product_id = input(
+                "Enter Product ID (or quit to finish): "
+            )
+
+            if product_id.lower() == "quit":
+                break
+
+            product = inventory.find_product(product_id)
+
+            if product is None:
+                print("Product not found")
+                continue
+
+            quantity = get_positive_integer(
+                "Enter Quantity: "
+            )
+
+            try:
+                order.add_order_line(product, quantity)
+                print("Product added to order.")
+
+            except ValueError as error:
+                print("Unable to add order line:", error)
+
+        order.display_order()
+
+    except ValueError as error:
+        print("Unable to create order:", error)
+
+def main():
+
+    inventory = Inventory()
 
     supplier = Supplier(
         "S001",
@@ -168,51 +164,32 @@ def main() -> None:
         "sales@techsupplies.com"
     )
 
-    inventory = load_inventory()
+    load_products("products.csv", inventory, supplier)
 
     while True:
         print("---------- MENU ----------")
-        print("1. Display All Products")
+        print("1. Display Inventory")
         print("2. Add Product")
-        print("3. Update Stock")
-        print("4. Search Product")
-        print("5. Remove Product")
-        print("6. Save Inventory")
-        print("7. Create Order")
-        print("8. Exit")
-        print("--------------------------")
+        print("3. Create Order")
+        print("4. Exit")
 
-        option = input("Enter option: ")
+        choice = input("Enter your choice: ")
 
-        if option == "1":
+        if choice == "1":
             inventory.display_all()
 
-        elif option == "2":
+        elif choice == "2":
             add_product(inventory, supplier)
 
-        elif option == "3":
-            update_stock(inventory)
-
-        elif option == "4":
-            search_product(inventory)
-
-        elif option == "5":
-            remove_product(inventory)
-
-        elif option == "6":
-            save_inventory(inventory)
-
-        elif option == "7":
+        elif choice == "3":
             create_order(inventory)
 
-        elif option == "8":
-            save_inventory(inventory)
-            print("\nExiting the program...")
-            print("Thank you for using the Inventory Management System. Goodbye!")
+        elif choice == "4":
+            print("Exiting Inventory Management System.")
             break
 
         else:
-            print("Invalid option. Please try again.")
+            print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
     main()
