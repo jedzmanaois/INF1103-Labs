@@ -1,81 +1,59 @@
-import json
-import os
+import csv
 
 from inventory import Inventory
-from physical_product import PhysicalProduct
-from digital_product import DigitalProduct
 from supplier import Supplier
-from product import Product
+from product_factory import ProductFactory
 
-def save_inventory(inventory: Inventory) -> None:
-    with open('inventory.json', 'w') as file:
-        json.dump(inventory.to_list(), file, indent=4)
+def load_products(
+    path: str,
+    inventory: Inventory,
+    supplier: Supplier
+) -> None:
 
-    print("Inventory successfully saved to inventory.json")
+    loaded = 0
 
-def load_inventory() -> Inventory:
-    inventory = Inventory()
+    try:
+        file = open(path, newline="", encoding="utf-8")
 
-    if not os.path.exists("inventory.json"):
-        print("No inventory file found. Starting with an empty inventory.")
-        return inventory
+    except FileNotFoundError:
+        print(f"Products file not found: {path}")
 
-    with open('inventory.json', 'r') as file:
-        data = json.load(file)
+    else:
+        with file:
+            reader = csv.reader(file)
 
-    # Products that share a supplier should share the same Supplier object
-    suppliers: dict[str, Supplier] = {}
+            next(reader, None)
 
-    for item in data:
+            for row in reader:
 
-        supplier_data = item.get("supplier")
+                try:
+                    if len(row) != 5:
+                        raise ValueError("Invalid number of columns.")
 
-        if supplier_data is None:
-            print(
-                f"Skipping {item.get('product_id', 'unknown')}: "
-                "supplier information is missing"
-            )
-            continue
+                    product_type = row[0]
+                    product_id = row[1]
+                    name = row[2]
+                    price = row[3]
+                    stock_quantity = int(row[4])
 
-        supplier_id = supplier_data["supplier_id"]
+                    product = ProductFactory.create(
+                        product_type,
+                        product_id,
+                        name,
+                        price,
+                        stock_quantity,
+                        supplier
+                    )
 
-        if supplier_id not in suppliers:
-            suppliers[supplier_id] = Supplier(
-                supplier_id,
-                supplier_data["name"],
-                supplier_data["contact_email"]
-            )
+                    if inventory.add_product(product):
+                        loaded += 1
 
-        supplier = suppliers[supplier_id]
+                except ValueError as error:
+                    print(
+                        f"Skipping invalid row {row}: {error}"
+                    )
 
-        product: Product
+        print(f"{loaded} products loaded.")
 
-        if item['type'] == 'physical':
-            product = PhysicalProduct(
-                item['product_id'],
-                item['name'],
-                item['price'],
-                item['stock'],
-                item['weight'],
-                supplier
-            )
-
-        elif item['type'] == 'digital':
-            product = DigitalProduct(
-                item['product_id'],
-                item['name'],
-                item['price'],
-                item['stock'],
-                item['download_size'],
-                supplier
-            )
-        else:
-            print(
-                f"Skipping unknown product type: "
-                f"{item.get('type')}"
-            )
-            continue
-
-        inventory.add_product(product)
-
-    return inventory
+    finally:
+        print("Load attempt finished.")
