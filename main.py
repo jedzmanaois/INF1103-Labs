@@ -28,17 +28,19 @@ def get_valid_price(prompt: str) -> float:
             print("Error: Please enter a valid price.")
 
 def get_valid_positive_float(prompt: str) -> float:
+    
     while True:
         try:
             value = float(input(prompt))
 
-            if value > 0:
-                return value
+            if value <= 0:
+                print("Please enter a number greater than zero.")
+                continue
 
-            print("Value must be greater than zero. Please enter a valid number.")
+            return value
 
         except ValueError:
-            print("Error: Please enter a valid number.")
+            print("Please enter a valid number, e.g. 12.50")
 
 def add_product(inventory: Inventory, supplier: Supplier) -> None:
     print("\nAdd Product")
