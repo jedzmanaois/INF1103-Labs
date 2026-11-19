@@ -9,8 +9,8 @@ class PhysicalProduct(Product, CanBeShipped):
         name: str,
         price: float,
         stock: int,
-        weight,
-        supplier: Supplier
+        supplier: Supplier,
+        weight: float
     ):
         super().__init__(
             product_id,
